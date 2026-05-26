@@ -5,11 +5,20 @@ uses crt;
 type 
     //Esse ponteiro aponta pra um endereço na memória que contem um elemento do tipo "registro"
     ponteiroRegistro = ^registro;
+    ponteiroVerbete = ^verbete;
+    
+    verbete  = record
+        palavra : string;
+        descricao_ingles : string;
+        descricao_portugues : string;
+        proximo : ponteiroVerbete;
+    end;
     
     registro = record
         palavra_chave : string;
         proximo : ponteiroRegistro;
         anterior : ponteiroRegistro;
+        verbete : ponteiroVerbete;
     end;
     
     tipoLista = record
@@ -43,6 +52,7 @@ begin
     new(ponteiro_novo_registro);
     
     ponteiro_novo_registro^.palavra_chave := palavra_chave;
+    ponteiro_novo_registro^.verbete := nil;
 
     //Se a lista estiver vazia
     if lista_registro.inicio = nil then
@@ -102,85 +112,79 @@ begin
     end;
 end;
 
-Procedure removerRegistro(var lista_registro: TipoLista; Palavra:string);
-var atual: ponteiroRegistro;
+procedure incluirVerbete(var lista_registro : TipoLista; palavra, descricao_portugues, descricao_ingles : string);
+var 
+    ponteiro_registro : ponteiroRegistro;
+    ponteiro_novo_verbete, ponteiro_verbete_temporario, ponteiro_verbete_anterior : ponteiroVerbete;
 begin
- //Valida se a lista está vazia
- if lista_registro.fim = nil then
-  writeln('Lista vazia')
- else
- begin
-  atual:= lista_registro.fim;
-  //Verifica se somente há um elemento na lista
-  if lista_registro.fim = lista_registro.inicio then
-   begin
-    dispose(atual);
-    lista_registro.inicio := nil;
-    lista_registro.fim := nil;
-    Writeln('Palavra removida!');
-   end
-  else
-  begin
-   
- //Percorre a lista até chegar no valor ou nil
-  while (atual <> nil) and (atual^.palavra_chave <> Palavra) do
-    atual:=atual^.anterior;
-  //verifica se ele achou alguma palavra igual a que escolheu para remover
-  if atual = nil then
-   writeln('Palavra solicitada para exclusão é inexistente')
-  else
-   begin
+    new(ponteiro_novo_verbete);
     
-    if atual^.proximo = nil then //remove o primeiro elemento
-     begin
-      lista_registro.fim:= atual^.anterior;
-      lista_registro.fim^.proximo:= nil;
-      dispose(atual);
-     end
-    else if atual^.anterior = nil then //remove o ultimo elemento
-     begin
-      lista_registro.inicio:= atual^.proximo;
-      lista_registro.inicio^.anterior:= nil;
-      dispose(atual);
-     end
-    else //remove elemento do meio
-     begin
-      atual^.anterior^.proximo := atual^.proximo;
-      atual^.proximo^.anterior := atual^.anterior;
-      dispose(atual);
-     end;
-    Writeln('Palavra removida!');
+    ponteiro_novo_verbete^.palavra := palavra;
+    ponteiro_novo_verbete^.descricao_portugues := descricao_portugues;
+    ponteiro_novo_verbete^.descricao_ingles := descricao_ingles;
+    ponteiro_novo_verbete^.proximo := nil;
     
-   end;
-
-  end;
-
- end;
- 
-end;
-
-procedure alterarPalavra(var lista_registro:TipoLista; var palavra_remover, nova_palavra: string);
-begin
-removerRegistro(lista_registro, palavra_remover);
-incluirRegistro(lista_registro, nova_palavra);
+    //Se a lista de registros estiver vazia:
+    if lista_registro.inicio = nil then
+        writeln('Não foi possível incluir o verbete, a lista de registros está vazia.')
+    else
+    begin
+        ponteiro_registro := lista_registro.inicio;
+        
+        while (ponteiro_registro <> nil) and (ponteiro_registro^.palavra_chave < palavra) do
+        begin
+            ponteiro_registro := ponteiro_registro^.proximo;
+        end;
+        
+        if ponteiro_registro^.verbete = nil then
+            ponteiro_registro^.verbete := ponteiro_novo_verbete
+        else
+        begin
+            ponteiro_verbete_temporario := ponteiro_registro^.verbete;
+            
+            while (ponteiro_verbete_temporario <> nil) and (ponteiro_verbete_temporario^.palavra  < palavra) do
+            begin
+                ponteiro_verbete_anterior := ponteiro_verbete_temporario;
+                ponteiro_verbete_temporario := ponteiro_verbete_temporario^.proximo;
+            end;
+            
+            ponteiro_verbete_anterior^.proximo := ponteiro_novo_verbete;
+            ponteiro_novo_verbete^.proximo := ponteiro_verbete_temporario;
+        end;
+    end;
 end;
 
 procedure escreverListaRegistros(lista_registro : TipoLista);
 var
     ponteiro_temporario : ponteiroRegistro;
+    ponteiro_verbete_temporario : ponteiroVerbete;
 begin
     ponteiro_temporario := lista_registro.inicio;
     
     while ponteiro_temporario <> nil do
     begin
-        writeln(ponteiro_temporario^.palavra_chave);
+        writeln('Palavra Chave: ', ponteiro_temporario^.palavra_chave);
+        
+        ponteiro_verbete_temporario := ponteiro_temporario^.verbete;
+        
+        while ponteiro_verbete_temporario <> nil do
+        begin
+            writeln('=============================================');
+            writeln('Palavra: ', ponteiro_verbete_temporario^.palavra);
+            writeln('Português: ', ponteiro_verbete_temporario^.descricao_portugues);
+            writeln('Inglês: ', ponteiro_verbete_temporario^.descricao_ingles);
+            writeln('=============================================');
+            
+            ponteiro_verbete_temporario := ponteiro_verbete_temporario^.proximo;
+        end;
+        
         ponteiro_temporario := ponteiro_temporario^.proximo;
     end;
 end;
 
 var
     lista_registro : TipoLista;
-    nova_palavra, palavra_remover: string;
+    nova_palavra, palavra_remover, descricao_ingles, descricao_portugues: string;
     opcao:integer;
     
 begin
@@ -189,10 +193,11 @@ repeat
     clrscr; // Limpa a tela (da unidade crt)
     writeln('--- DICIONARIO DE STRINGS (LISTA DINAMICA) ---');
     writeln('1. Incluir Registro');
-    writeln('2. Remover Registro');
-    writeln('3. Visualizar Lista');
-    writeln('4. Alterar Lista');
-    writeln('5. Sair');
+    writeln('2. Incluir Verbete');
+    writeln('3. Remover Verbete');
+    writeln('4. Consultar Verbete');
+    writeln('5. Visualizar Lista');
+    writeln('6. Sair');
     write('Escolha uma opcao: ');
     readln(opcao);
 
@@ -204,34 +209,31 @@ repeat
           incluirRegistro(lista_registro, nova_palavra);
           readkey; // Pausa para o usuario ler
         end;
-      
-      2: 
+    
+      2:
         begin
-          Writeln('Informe a Palavra a Remover: ');
-          Read(palavra_remover);
-          removerRegistro(lista_registro, palavra_remover);
-          readkey;
+            write('Digite a palavra para incluir: ');
+            readln(nova_palavra);
+            
+            write('Digite a descrição em português: ');
+            readln(descricao_portugues);
+            
+            write('Digite a descrição em inglês: ');
+            readln(descricao_ingles);
+            
+            incluirVerbete(lista_registro, nova_palavra, descricao_portugues, descricao_ingles);
+            readkey;
         end;
       
-      3: 
+      5: 
         begin
           writeln('--- LISTA ATUAL ---');
           escreverListaRegistros(lista_registro);
           writeln('-------------------');
           readkey;
         end;
-        
-      4:
-        begin
-         writeln('Informe o valor a ser alterado: ');
-         readln(palavra_remover);
-         writeln('Informe o novo valor a ser colocado');
-         readln(nova_palavra);
-         alterarPalavra(lista_registro, palavra_remover, nova_palavra);
-         readkey;
-        end;
       
-      5: writeln('Saindo do programa...');
+      6: writeln('Saindo do programa...');
       
       else
         begin
