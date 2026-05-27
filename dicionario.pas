@@ -154,6 +154,60 @@ begin
     end;
 end;
 
+procedure removerVerbete(var lista_registro: TipoLista; palavra: string);
+var ponteiro_registro : ponteiroRegistro;
+ponteiro_verbete_temporario, ponteiro_verbete_anterior : ponteiroVerbete;
+begin
+ ponteiro_registro:= lista_registro.inicio;
+  //Se não existir nenhuma palavra chave
+ if ponteiro_registro = nil then
+  writeln('Nenhuma palavra chave incluída')
+ else
+ begin
+  //Percorre até a palavra chave correta
+  while (ponteiro_registro <> nil) and (ponteiro_registro^.palavra_chave < palavra) do
+  begin
+   ponteiro_registro := ponteiro_registro^.proximo;
+  end;
+  
+  if ponteiro_registro^.verbete = nil then
+    writeln('Verbete inexistente')
+    else
+    begin
+        ponteiro_verbete_temporario := ponteiro_registro^.verbete;
+        ponteiro_verbete_anterior := nil;
+        
+        while (ponteiro_verbete_temporario <> nil) and (ponteiro_verbete_temporario^.palavra <> palavra) do
+        begin
+            ponteiro_verbete_anterior := ponteiro_verbete_temporario;
+            ponteiro_verbete_temporario := ponteiro_verbete_temporario^.proximo;
+        end;
+         //Se for o primeiro verbete da lista   
+        if ponteiro_verbete_anterior = nil then
+         begin
+          ponteiro_registro^.verbete:= ponteiro_verbete_temporario^.proximo;
+          dispose(ponteiro_verbete_temporario);
+         end
+        //se for o ultimo elemento
+        else if (ponteiro_verbete_temporario^.proximo = nil) then
+         begin
+          ponteiro_verbete_anterior^.proximo:= nil;
+          dispose(ponteiro_verbete_temporario);
+         end
+        //se não localizar nenhum verbete
+        else if (ponteiro_verbete_temporario = nil) then
+         writeln('Verbete inexistente')
+        else
+         begin
+          ponteiro_verbete_anterior^.proximo:= ponteiro_verbete_temporario^.proximo;
+          dispose(ponteiro_verbete_temporario);
+         end;
+    end;
+    
+ end;
+ 
+end;
+
 procedure escreverListaRegistros(lista_registro : TipoLista);
 var
     ponteiro_temporario : ponteiroRegistro;
@@ -224,7 +278,12 @@ repeat
             incluirVerbete(lista_registro, nova_palavra, descricao_portugues, descricao_ingles);
             readkey;
         end;
-      
+      3:
+       begin
+        write('Digite o verbete a ser removido');
+        readln(nova_palavra);
+        removerVerbete(lista_registro, nova_palavra);
+       end;
       5: 
         begin
           writeln('--- LISTA ATUAL ---');
@@ -242,8 +301,5 @@ repeat
         end;
     end;
 
-  until opcao = 5;
+  until opcao = 6;
 end.
-
-
-
