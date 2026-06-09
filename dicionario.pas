@@ -111,7 +111,7 @@ begin
       end;
     end;
 end;
-{Função para Remover uma Palavra-Chave}
+
 Procedure removerRegistro(var lista_registro: TipoLista; Palavra:string);
 var atual: ponteiroRegistro;
 begin
@@ -305,11 +305,12 @@ repeat
     clrscr; // Limpa a tela (da unidade crt)
     writeln('--- DICIONARIO DE STRINGS (LISTA DINAMICA) ---');
     writeln('1. Incluir Registro');
-    writeln('2. Incluir Verbete');
-    writeln('3. Remover Verbete');
-    writeln('4. Consultar Verbete');
-    writeln('5. Visualizar Lista');
-    writeln('6. Sair');
+    writeln('2. Remover Registro');
+    writeln('3. Incluir Verbete');
+    writeln('4. Remover Verbete');
+    writeln('5. Consultar Verbete');
+    writeln('6. Visualizar Lista');
+    writeln('7. Sair');
     write('Escolha uma opcao: ');
     readln(opcao);
 
@@ -321,8 +322,16 @@ repeat
           incluirRegistro(lista_registro, nova_palavra);
           readkey; // Pausa para o usuario ler
         end;
-    
+      
       2:
+        begin
+          Writeln('Informe a Palavra a Remover: ');
+          Read(palavra_remover);
+          removerRegistro(lista_registro, palavra_remover);
+          readkey;
+        end;
+      
+      3:
         begin
             write('Digite a palavra para incluir: ');
             readln(nova_palavra);
@@ -336,13 +345,13 @@ repeat
             incluirVerbete(lista_registro, nova_palavra, descricao_portugues, descricao_ingles);
             readkey;
         end;
-      3:
+      4:
        begin
         write('Digite o verbete a ser removido');
         readln(nova_palavra);
         removerVerbete(lista_registro, nova_palavra);
        end;
-      5: 
+      6: 
         begin
           writeln('--- LISTA ATUAL ---');
           escreverListaRegistros(lista_registro);
@@ -350,7 +359,7 @@ repeat
           readkey;
         end;
       
-      6: writeln('Saindo do programa...');
+      7: writeln('Saindo do programa...');
       
       else
         begin
@@ -359,5 +368,5 @@ repeat
         end;
     end;
 
-  until opcao = 6;
+  until opcao = 7;
 end.
