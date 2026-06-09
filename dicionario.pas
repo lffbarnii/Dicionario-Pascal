@@ -111,6 +111,64 @@ begin
       end;
     end;
 end;
+{Função para Remover uma Palavra-Chave}
+Procedure removerRegistro(var lista_registro: TipoLista; Palavra:string);
+var atual: ponteiroRegistro;
+begin
+ //Valida se a lista está vazia
+ if lista_registro.fim = nil then
+  writeln('Lista vazia')
+ else
+ begin
+  atual:= lista_registro.fim;
+  //Verifica se somente há um elemento na lista
+  if lista_registro.fim = lista_registro.inicio then
+   begin
+    dispose(atual);
+    lista_registro.inicio := nil;
+    lista_registro.fim := nil;
+    Writeln('Palavra removida!');
+   end
+  else
+  begin
+   
+ //Percorre a lista até chegar no valor ou nil
+  while (atual <> nil) and (atual^.palavra_chave <> Palavra) do
+    atual:=atual^.anterior;
+  //verifica se ele achou alguma palavra igual a que escolheu para remover
+  if atual = nil then
+   writeln('Palavra solicitada para exclusão é inexistente')
+  else
+   begin
+    
+    if atual^.proximo = nil then //remove o primeiro elemento
+     begin
+      lista_registro.fim:= atual^.anterior;
+      lista_registro.fim^.proximo:= nil;
+      dispose(atual);
+     end
+    else if atual^.anterior = nil then //remove o ultimo elemento
+     begin
+      lista_registro.inicio:= atual^.proximo;
+      lista_registro.inicio^.anterior:= nil;
+      dispose(atual);
+     end
+    else //remove elemento do meio
+     begin
+      atual^.anterior^.proximo := atual^.proximo;
+      atual^.proximo^.anterior := atual^.anterior;
+      dispose(atual);
+     end;
+    Writeln('Palavra removida!');
+    
+   end;
+
+  end;
+
+ end;
+ 
+end;
+
 
 procedure incluirVerbete(var lista_registro : TipoLista; palavra, descricao_portugues, descricao_ingles : string);
 var 
