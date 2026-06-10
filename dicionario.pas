@@ -268,6 +268,52 @@ begin
  
 end;
 
+procedure escreverVerbete(lista_registro: TipoLista; palavra:string);
+var ponteiro_registro : ponteiroRegistro;
+ponteiro_verbete_temporario: ponteiroVerbete;
+begin
+ ponteiro_registro:= lista_registro.inicio;
+  //Se não existir nenhuma palavra chave
+ if ponteiro_registro = nil then
+  writeln('Nenhuma palavra chave incluída')
+ else
+ begin
+  //Percorre até a palavra chave correta
+  while (ponteiro_registro <> nil) and (ponteiro_registro^.palavra_chave < palavra) do
+  begin
+   ponteiro_registro := ponteiro_registro^.proximo;
+  end;
+  
+  if ponteiro_registro = nil then
+    writeln('Esse verbete não existe')
+  else
+   begin
+    if ponteiro_registro^.verbete = nil then
+      writeln('Verbete inexistente')
+      else
+      begin
+       ponteiro_verbete_temporario:= ponteiro_registro^.verbete;
+     
+       while (ponteiro_verbete_temporario <> nil) and (ponteiro_verbete_temporario^.palavra <> palavra) do
+         ponteiro_verbete_temporario:= ponteiro_verbete_temporario^.proximo;
+       
+       if ponteiro_verbete_temporario = nil then
+        writeln('Verbete inexistente')
+       else
+        writeln('=============================================');
+        writeln('Palavra: ', ponteiro_verbete_temporario^.palavra);
+        writeln('Português: ', ponteiro_verbete_temporario^.descricao_portugues);
+        writeln('Inglês: ', ponteiro_verbete_temporario^.descricao_ingles);
+        writeln('=============================================');
+     end;
+     
+    end;
+    
+  end;
+  
+end;
+
+
 procedure escreverListaRegistros(lista_registro : TipoLista);
 var
     ponteiro_temporario : ponteiroRegistro;
@@ -339,7 +385,7 @@ begin
 end;
 var
     lista_registro : TipoLista;
-    nova_palavra, palavra_remover, descricao_ingles, descricao_portugues: string;
+    verbete_consulta, nova_palavra, palavra_remover, descricao_ingles, descricao_portugues: string;
     opcao:integer;
     
 begin
@@ -393,6 +439,15 @@ repeat
         write('Digite o verbete a ser removido');
         readln(nova_palavra);
         removerVerbete(lista_registro, nova_palavra);
+        readkey;
+       end;
+       
+      5:
+       begin
+        writeln('Digite o verbete que deseja consultar');
+        readln(verbete_consulta);
+        escreverVerbete(lista_registro, verbete_consulta);
+        readkey;
        end;
       6: 
         begin
