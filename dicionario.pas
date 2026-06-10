@@ -300,11 +300,14 @@ begin
        if ponteiro_verbete_temporario = nil then
         writeln('Verbete inexistente')
        else
+       begin
         writeln('=============================================');
         writeln('Palavra: ', ponteiro_verbete_temporario^.palavra);
         writeln('Português: ', ponteiro_verbete_temporario^.descricao_portugues);
         writeln('Inglês: ', ponteiro_verbete_temporario^.descricao_ingles);
         writeln('=============================================');
+       end;
+        
      end;
      
     end;
