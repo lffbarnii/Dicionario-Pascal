@@ -194,7 +194,9 @@ begin
             ponteiro_registro := ponteiro_registro^.proximo;
         end;
         
-        if ponteiro_registro^.verbete = nil then
+        if ponteiro_registro = nil then
+         writeln('Não é possível alocar esse verbete à nenhuma palavra chave')
+        else if ponteiro_registro^.verbete = nil then
             ponteiro_registro^.verbete := ponteiro_novo_verbete
         else
         begin
@@ -270,11 +272,20 @@ procedure escreverListaRegistros(lista_registro : TipoLista);
 var
     ponteiro_temporario : ponteiroRegistro;
     ponteiro_verbete_temporario : ponteiroVerbete;
+    Ordenacao: integer;
 begin
-    ponteiro_temporario := lista_registro.inicio;
+    writeln('--- DESEJA ORDENAR DE FORMA CRESCENCTE OU DECRESCENTE ----');
+    writeln('1. CRESCENTE');
+    writeln('2. DECRESCENTE');
+    readln(Ordenacao);
+   
     
-    while ponteiro_temporario <> nil do
-    begin
+     if Ordenacao = 1 then
+      begin
+       ponteiro_temporario := lista_registro.inicio;
+      
+       while ponteiro_temporario <> nil do
+       begin
         writeln('Palavra Chave: ', ponteiro_temporario^.palavra_chave);
         
         ponteiro_verbete_temporario := ponteiro_temporario^.verbete;
@@ -291,9 +302,41 @@ begin
         end;
         
         ponteiro_temporario := ponteiro_temporario^.proximo;
-    end;
+       end;
+       
+      end
+    
+     else if Ordenacao = 2 then
+      begin
+       ponteiro_temporario := lista_registro.fim;
+       
+       while ponteiro_temporario <> nil do
+        begin
+         writeln('Palavra Chave: ', ponteiro_temporario^.palavra_chave);
+        
+         ponteiro_verbete_temporario := ponteiro_temporario^.verbete;
+         
+         while ponteiro_verbete_temporario <> nil do
+          begin
+            writeln('=============================================');
+            writeln('Palavra: ', ponteiro_verbete_temporario^.palavra);
+            writeln('Português: ', ponteiro_verbete_temporario^.descricao_portugues);
+            writeln('Inglês: ', ponteiro_verbete_temporario^.descricao_ingles);
+            writeln('=============================================');
+            
+            ponteiro_verbete_temporario := ponteiro_verbete_temporario^.proximo;
+          end;
+         ponteiro_temporario := ponteiro_temporario^.anterior; 
+        end;
+        
+      end
+      
+     else
+      begin
+        writeln('Opcao invalida! Tente novamente.');
+        readkey;
+      end;
 end;
-
 var
     lista_registro : TipoLista;
     nova_palavra, palavra_remover, descricao_ingles, descricao_portugues: string;
