@@ -69,7 +69,10 @@ begin
     begin
      //Verifica se a palavra inserida já existe no dicionário
      if PalavraExiste(lista_registro, palavra_chave) then
-      writeln('Palavra já existente')
+     begin
+      writeln('Palavra já existente');
+      dispose(ponteiro_novo_registro);
+     end
      else
       begin
         //Se a palavra chave do primeiro registro for maior que a nova palavra chave
@@ -79,6 +82,7 @@ begin
             ponteiro_novo_registro^.proximo := lista_registro.inicio;
             lista_registro.inicio^.anterior := ponteiro_novo_registro;
             lista_registro.inicio := ponteiro_novo_registro;
+            writeln('Palavra inserida!');
         end
         //Se a palavra chave do primeiro registro é menor que a nova palavra chave
         else
@@ -109,37 +113,37 @@ begin
             end;
             writeln('Palavra inserida!');
        end;
-      end;
 
-      //Se existe um próximo registro
-      if ponteiro_novo_registro^.proximo <> nil then
-      begin
-        ponteiro_temporario := ponteiro_novo_registro^.proximo;
-
-        //Só faz a reordenação caso o próximo registro tenha verbetes e o primeiro verbete dele seja menor que a palavra chave sendo inserida
-        if (ponteiro_temporario^.verbete <> nil) and (ponteiro_temporario^.verbete^.palavra < ponteiro_novo_registro^.palavra_chave) then
+        //Se existe um próximo registro
+        if ponteiro_novo_registro^.proximo <> nil then
         begin
-          ponteiro_novo_registro^.verbete := ponteiro_temporario^.verbete;
-          ponteiro_verbete := ponteiro_temporario^.verbete;
+          ponteiro_temporario := ponteiro_novo_registro^.proximo;
 
-          //Percorre até a maior palavra que ainda é menor que a palavra chave inserida
-          while (ponteiro_verbete^.palavra < ponteiro_novo_registro^.palavra_chave) and (ponteiro_verbete <> nil) do
+          //Só faz a reordenação caso o próximo registro tenha verbetes e o primeiro verbete dele seja menor que a palavra chave sendo inserida
+          if (ponteiro_temporario^.verbete <> nil) and (ponteiro_temporario^.verbete^.palavra < ponteiro_novo_registro^.palavra_chave) then
           begin
-            ponteiro_verbete_anterior := ponteiro_verbete; 
-            ponteiro_verbete := ponteiro_verbete^.proximo;
-          end;
+            ponteiro_novo_registro^.verbete := ponteiro_temporario^.verbete;
+            ponteiro_verbete := ponteiro_temporario^.verbete;
 
-          //Se chegou ao fim da lista de verbetes
-          if ponteiro_verbete = nil then
-          begin
-            //Só tira todos os verbetes do próximo registro
-            ponteiro_temporario^.verbete := nil;
-          end
-          else
-           // Retira até o verbete que é menor que a palavra chave inserida
-           ponteiro_verbete_anterior^.proximo := nil;
-           ponteiro_temporario^.verbete := ponteiro_verbete;
-          begin
+            //Percorre até a maior palavra que ainda é menor que a palavra chave inserida
+            while (ponteiro_verbete <> nil) and (ponteiro_verbete^.palavra < ponteiro_novo_registro^.palavra_chave) do
+            begin
+              ponteiro_verbete_anterior := ponteiro_verbete; 
+              ponteiro_verbete := ponteiro_verbete^.proximo;
+            end;
+
+            //Se chegou ao fim da lista de verbetes
+            if ponteiro_verbete = nil then
+            begin
+              //Só tira todos os verbetes do próximo registro
+              ponteiro_temporario^.verbete := nil;
+            end
+            else
+            begin
+              // Retira até o verbete que é menor que a palavra chave inserida
+              ponteiro_verbete_anterior^.proximo := nil;
+              ponteiro_temporario^.verbete := ponteiro_verbete;
+            end;
           end;
         end;
       end;
@@ -149,7 +153,7 @@ end;
 Procedure removerRegistro(var lista_registro: TipoLista; Palavra:string);
 var 
     atual: ponteiroRegistro;
-    ponteiro_verbete, ponteiro_verbete_anterior : ponteiroVerbete;
+    ponteiro_verbete : ponteiroVerbete;
 begin
  //Valida se a lista está vazia
  if lista_registro.fim = nil then
@@ -160,10 +164,15 @@ begin
   //Verifica se somente há um elemento na lista
   if lista_registro.fim = lista_registro.inicio then
    begin
-    dispose(atual);
-    lista_registro.inicio := nil;
-    lista_registro.fim := nil;
-    Writeln('Palavra removida!');
+    if atual^.palavra_chave <> Palavra then
+     writeln('Palavra solicitada para exclusão é inexistente')
+    else
+    begin
+     dispose(atual);
+     lista_registro.inicio := nil;
+     lista_registro.fim := nil;
+     Writeln('Palavra removida!');
+    end;
    end
   else
   begin
@@ -187,24 +196,14 @@ begin
      begin
       lista_registro.inicio:= atual^.proximo;
       lista_registro.inicio^.anterior:= nil;
-      
+
       if atual^.verbete <> nil then
       begin
-        if atual^.proximo^.verbete <> nil then
-        begin
-          ponteiro_verbete := atual^.verbete;
-          while ponteiro_verbete^.proximo <> nil do
-          begin
-            ponteiro_verbete := ponteiro_verbete^.proximo;
-          end;
-
-          ponteiro_verbete^.proximo := atual^.proximo^.verbete;
-          atual^.proximo^.verbete := atual^.verbete;
-        end
-        else
-        begin
-            atual^.proximo^.verbete := atual^.verbete;
-        end;
+        ponteiro_verbete := atual^.verbete;
+        while ponteiro_verbete^.proximo <> nil do
+          ponteiro_verbete := ponteiro_verbete^.proximo;
+        ponteiro_verbete^.proximo := atual^.proximo^.verbete;
+        atual^.proximo^.verbete := atual^.verbete;
       end;
 
       dispose(atual);
@@ -216,21 +215,11 @@ begin
 
       if atual^.verbete <> nil then
       begin
-        if atual^.proximo^.verbete <> nil then
-        begin
-          ponteiro_verbete := atual^.verbete;
-          while ponteiro_verbete^.proximo <> nil do
-          begin
-            ponteiro_verbete := ponteiro_verbete^.proximo;
-          end;
-
-          ponteiro_verbete^.proximo := atual^.proximo^.verbete;
-          atual^.proximo^.verbete := atual^.verbete;
-        end
-        else
-        begin
-            atual^.proximo^.verbete := atual^.verbete;
-        end;
+        ponteiro_verbete := atual^.verbete;
+        while ponteiro_verbete^.proximo <> nil do
+          ponteiro_verbete := ponteiro_verbete^.proximo;
+        ponteiro_verbete^.proximo := atual^.proximo^.verbete;
+        atual^.proximo^.verbete := atual^.verbete;
       end;
 
       dispose(atual);
@@ -265,21 +254,30 @@ begin
         begin
             ponteiro_registro := ponteiro_registro^.proximo;
         end;
-        
-        if ponteiro_registro^.verbete = nil then
-            ponteiro_registro^.verbete := ponteiro_novo_verbete
+
+        if ponteiro_registro = nil then
+            writeln('Não foi possível incluir o verbete, nenhum registro encontrado.')
         else
         begin
             ponteiro_verbete_temporario := ponteiro_registro^.verbete;
-            
-            while (ponteiro_verbete_temporario <> nil) and (ponteiro_verbete_temporario^.palavra  < palavra) do
+            ponteiro_verbete_anterior := nil;
+
+            while (ponteiro_verbete_temporario <> nil) and (ponteiro_verbete_temporario^.palavra < palavra) do
             begin
                 ponteiro_verbete_anterior := ponteiro_verbete_temporario;
                 ponteiro_verbete_temporario := ponteiro_verbete_temporario^.proximo;
             end;
-            
-            ponteiro_verbete_anterior^.proximo := ponteiro_novo_verbete;
-            ponteiro_novo_verbete^.proximo := ponteiro_verbete_temporario;
+
+            if ponteiro_verbete_anterior = nil then
+            begin
+                ponteiro_novo_verbete^.proximo := ponteiro_registro^.verbete;
+                ponteiro_registro^.verbete := ponteiro_novo_verbete;
+            end
+            else
+            begin
+                ponteiro_verbete_anterior^.proximo := ponteiro_novo_verbete;
+                ponteiro_novo_verbete^.proximo := ponteiro_verbete_temporario;
+            end;
         end;
     end;
 end;
@@ -300,9 +298,11 @@ begin
    ponteiro_registro := ponteiro_registro^.proximo;
   end;
   
-  if ponteiro_registro^.verbete = nil then
+  if ponteiro_registro = nil then
     writeln('Verbete inexistente')
-    else
+  else if ponteiro_registro^.verbete = nil then
+    writeln('Verbete inexistente')
+  else
     begin
         ponteiro_verbete_temporario := ponteiro_registro^.verbete;
         ponteiro_verbete_anterior := nil;
@@ -312,22 +312,15 @@ begin
             ponteiro_verbete_anterior := ponteiro_verbete_temporario;
             ponteiro_verbete_temporario := ponteiro_verbete_temporario^.proximo;
         end;
-         //Se for o primeiro verbete da lista   
-        if ponteiro_verbete_anterior = nil then
+
+        if ponteiro_verbete_temporario = nil then //se não localizar nenhum verbete
+          writeln('Verbete inexistente')
+        else if ponteiro_verbete_anterior = nil then //Se for o primeiro verbete da lista
          begin
           ponteiro_registro^.verbete:= ponteiro_verbete_temporario^.proximo;
           dispose(ponteiro_verbete_temporario);
          end
-        //se for o ultimo elemento
-        else if (ponteiro_verbete_temporario^.proximo = nil) then
-         begin
-          ponteiro_verbete_anterior^.proximo:= nil;
-          dispose(ponteiro_verbete_temporario);
-         end
-        //se não localizar nenhum verbete
-        else if (ponteiro_verbete_temporario = nil) then
-         writeln('Verbete inexistente')
-        else
+        else //se for um elemento do meio ou o ultimo
          begin
           ponteiro_verbete_anterior^.proximo:= ponteiro_verbete_temporario^.proximo;
           dispose(ponteiro_verbete_temporario);
